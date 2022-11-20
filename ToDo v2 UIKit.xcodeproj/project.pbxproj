@@ -16,6 +16,7 @@
 		CEEDC4512929060B000645D0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CEEDC4502929060B000645D0 /* Launch Screen.storyboard */; };
 		CEEDC45629290C30000645D0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEDC45529290C30000645D0 /* Constants.swift */; };
 		CEEDC45829290FCE000645D0 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEDC45729290FCE000645D0 /* CoreDataManager.swift */; };
+		CEEDC45A2929AC65000645D0 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = CEEDC4592929AC64000645D0 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		CEEDC4502929060B000645D0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		CEEDC45529290C30000645D0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		CEEDC45729290FCE000645D0 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		CEEDC4592929AC64000645D0 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				CEEDC41A2927C8A3000645D0 /* Assets.xcassets */,
 				CEEDC41F2927C8A3000645D0 /* Info.plist */,
 				CEEDC4502929060B000645D0 /* Launch Screen.storyboard */,
+				CEEDC4592929AC64000645D0 /* README.md */,
 			);
 			path = "ToDo v2 UIKit";
 			sourceTree = "<group>";
@@ -166,6 +169,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEEDC45A2929AC65000645D0 /* README.md in Resources */,
 				CEEDC4512929060B000645D0 /* Launch Screen.storyboard in Resources */,
 				CEEDC41B2927C8A3000645D0 /* Assets.xcassets in Resources */,
 			);
