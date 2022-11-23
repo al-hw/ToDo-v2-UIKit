@@ -9,22 +9,24 @@ import CoreData
 
 class CoreDataManager {
     
-    static let sharedManager = CoreDataManager()
+    static let sharedManager = CoreDataManager(modelName: K.modelName)
     
-    private init() {}
+    let persistentContainer: NSPersistentContainer
     
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: K.modelName)
-        container.loadPersistentStores { (storeDescription, error) in
+    private var context: NSManagedObjectContext {
+        return persistentContainer.viewContext
+    }
+    
+    init(modelName: String) {
+        persistentContainer = NSPersistentContainer(name: modelName)
+        persistentContainer.loadPersistentStores { (storeDescription, error) in
             if let nserror = error as NSError? {
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
-        return container
-    }()
+    }
     
     func saveContext() {
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
@@ -34,6 +36,36 @@ class CoreDataManager {
             }
         }
     }
+    
+    func loadListsFRC() -> NSFetchedResultsController<Lists> {
+        let request = Lists.fetchRequest()
+        let sort = NSSortDescriptor(key: K.List.listAttributeTimeStamp, ascending: false)
+        
+        request.sortDescriptors = [sort]
+        request.fetchBatchSize = 20
+        
+        return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: K.List.listAttributeDateSections, cacheName: nil)
+    }
+    
+    func loadItemsFRC(with request: NSFetchRequest<Items> = Items.fetchRequest(), predicate: NSPredicate? = nil, selectedList: Lists? = nil) -> NSFetchedResultsController<Items> {
+        let request = Items.fetchRequest()
+        
+        let sortByDone = NSSortDescriptor(key: K.Item.itemAttributeDone, ascending: true)
+        let sortByTimeStamp = NSSortDescriptor(key: K.Item.itemAttributeTimeStamp, ascending: false)
+        
+        request.sortDescriptors = [sortByDone, sortByTimeStamp]
+        request.fetchBatchSize = 20
+        
+        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedList!.name!)
+        
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [listPredicate, additionalPredicate])
+        } else {
+            request.predicate = listPredicate
+        }
+        
+        return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+    }
 }
 
-    
+

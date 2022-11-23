@@ -28,6 +28,18 @@ class ListsViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: K.List.listCellIdentifier)
     }
     
+    func setupListsFRC() {
+        frc = CoreDataManager.sharedManager.loadListsFRC()
+        frc.delegate = self
+        
+        do {
+            try frc.performFetch()
+            tableView.reloadData()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,7 +47,7 @@ class ListsViewController: UITableViewController {
         
         configureTableView()
         configureNavBar()
-        loadCategories()
+        setupListsFRC()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,10 +57,10 @@ class ListsViewController: UITableViewController {
     //MARK: - Add Button Tapped
     
     @objc func addListTapped() {
-        
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New List", message: "", preferredStyle: .alert)
         let addCategoryAction = UIAlertAction(title: "Add", style: .default) { action in
+            
             let newCategory = Lists(context: self.context)
             
             if textField.text != "" {
@@ -75,17 +87,13 @@ class ListsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let sectionInfo = frc?.sections![section]
         let lists = sectionInfo?.objects
-
+        
         if let list: NSManagedObject = lists?[0] as? NSManagedObject {
             let listDate = list.value(forKey: K.List.listAttributeDateSections) as? String
-
             return listDate
-
         } else {
             return ""
         }
-        
-        
     }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -129,33 +137,12 @@ class ListsViewController: UITableViewController {
         navigationController?.pushViewController(destinationVC, animated: true)
     }
     
-    //MARK: - DataModel Methods
-    
-    private func loadCategories() {
-        if frc == nil {
-            let request = Lists.fetchRequest()
-            let sort = NSSortDescriptor(key: K.List.listAttributeTimeStamp, ascending: false)
-            request.sortDescriptors = [sort]
-            request.fetchBatchSize = 20
-            
-            frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: K.List.listAttributeDateSections, cacheName: nil)
-            frc.delegate = self
-        }
-        
-        do {
-            try frc.performFetch()
-            tableView.reloadData()
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
     //MARK: - Swipe Actions
     
     //Delete
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (_, _, complete) in
-
+            
             let alert = UIAlertController(title: "Are you sure?", message: "", preferredStyle: .alert)
             
             let deleteListAction = UIAlertAction(title: "Delete", style: .default) { action in
@@ -183,6 +170,7 @@ class ListsViewController: UITableViewController {
         let editAction = UIContextualAction(style: .destructive, title: "Edit") { _, _, complete in
             
             let list = self.frc.object(at: indexPath)
+            
             var textField = UITextField()
             let alert = UIAlertController(title: "Edit List", message: "", preferredStyle: .alert)
             
@@ -202,7 +190,6 @@ class ListsViewController: UITableViewController {
             alert.addAction(editListCancelAction)
             
             self.present(alert, animated: true, completion: nil)
-            
             complete(true)
         }
         

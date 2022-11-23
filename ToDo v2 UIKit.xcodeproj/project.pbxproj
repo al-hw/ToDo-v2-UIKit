@@ -65,7 +65,6 @@
 			isa = PBXGroup;
 			children = (
 				CEEDC45229290B78000645D0 /* Models */,
-				CEEDC4252927D05F000645D0 /* Views */,
 				CEEDC4282927D09F000645D0 /* Controllers */,
 				CEEDC45429290BB4000645D0 /* Resources */,
 				CEEDC45529290C30000645D0 /* Constants.swift */,
@@ -75,13 +74,6 @@
 				CEEDC4592929AC64000645D0 /* README.md */,
 			);
 			path = "ToDo v2 UIKit";
-			sourceTree = "<group>";
-		};
-		CEEDC4252927D05F000645D0 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		CEEDC4282927D09F000645D0 /* Controllers */ = {

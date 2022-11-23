@@ -9,15 +9,13 @@ import UIKit
 import CoreData
 
 class ItemsViewController: UITableViewController {
-    
     private var frc: NSFetchedResultsController<Items>!
     private let context = CoreDataManager.sharedManager.persistentContainer.viewContext
-    
     let dateFormatter = DateFormatter()
     
     var selectedList : Lists? {
         didSet{
-            loadItems()
+            setupItemsFRC(selectedList: selectedList)
         }
     }
     
@@ -36,6 +34,17 @@ class ItemsViewController: UITableViewController {
     private func configureTableView() {
         tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: K.Item.itemCellIdentifier)
+    }
+    
+    func setupItemsFRC(predicate: NSPredicate? = nil, selectedList: Lists? = nil) {
+        frc = CoreDataManager.sharedManager.loadItemsFRC(predicate: predicate, selectedList: selectedList)
+        frc.delegate = self
+        do {
+            try frc.performFetch()
+            tableView.reloadData()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     override func viewDidLoad() {
@@ -65,7 +74,6 @@ class ItemsViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: K.Item.itemCellIdentifier, for: indexPath)
-        
         let item = frc.object(at: indexPath)
         
         var content = cell.defaultContentConfiguration()
@@ -74,13 +82,9 @@ class ItemsViewController: UITableViewController {
         
         let doneImage = UIImage(systemName: "checkmark.circle")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         let notDoneImage = UIImage(systemName: "circle")?.withTintColor(.label, renderingMode: .alwaysOriginal)
-        
         content.image = item.done ? doneImage : notDoneImage
         
-//        cell.accessoryType = item.done ? .checkmark : .none
-//        cell.tintColor = .label
         cell.contentConfiguration = content
-        
         return cell
     }
     
@@ -94,47 +98,12 @@ class ItemsViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    //MARK: - DataModel Methods
-    
-    func loadItems(with request: NSFetchRequest<Items> = Items.fetchRequest(), predicate: NSPredicate? = nil) {
-        
-        if frc == nil {
-            let request = Items.fetchRequest()
-            
-            let sortByDone = NSSortDescriptor(key: K.Item.itemAttributeDone, ascending: true)
-            let sortByTimeStamp = NSSortDescriptor(key: K.Item.itemAttributeTimeStamp, ascending: false)
-            request.sortDescriptors = [sortByDone, sortByTimeStamp]
-            request.fetchBatchSize = 20
-            
-            let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedList!.name!)
-            if let additionalPredicate = predicate {
-                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [listPredicate, additionalPredicate])
-            } else {
-                request.predicate = listPredicate
-            }
-            
-            frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-            frc.delegate = self
-        }
-        
-        do {
-            try frc.performFetch()
-            tableView.reloadData()
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
     //MARK: - Add Item Tapped
     
     @objc func addItemTapped() {
-        
         var textField = UITextField()
-        
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
-        
         let addItemAction = UIAlertAction(title: "Add", style: .default) { action in
-            
             let newItem = Items(context: self.context)
             
             if textField.text != "" {
@@ -142,10 +111,6 @@ class ItemsViewController: UITableViewController {
                 newItem.name = textField.text!
                 newItem.timeStamp = Int32(Date().timeIntervalSince1970)
                 newItem.parentList = self.selectedList
-                
-                // Under consideration (update edit date to list?):
-                // newItem.parentList?.timeStamp = Date().timeIntervalSince1970
-                // newItem.parentList?.dateSections = self.dateFormatter.string(from: Date().startOfDay())
             }
         }
         
@@ -166,9 +131,7 @@ class ItemsViewController: UITableViewController {
     //Delete
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { (_, _, complete) in
-
             let alert = UIAlertController(title: "Are you sure?", message: "", preferredStyle: .alert)
-            
             let deleteItemAction = UIAlertAction(title: "Delete", style: .default) { action in
                 let item = self.frc.object(at: indexPath)
                 self.context.delete(item)
@@ -179,7 +142,6 @@ class ItemsViewController: UITableViewController {
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             self.present(alert, animated: true, completion: nil)
-            
             complete(true)
         }
         deleteAction.image = UIImage(systemName: "trash")
@@ -192,31 +154,23 @@ class ItemsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let editAction = UIContextualAction(style: .destructive, title: "Edit") { _, _, complete in
-            
             let item = self.frc.object(at: indexPath)
-            
             var textField = UITextField()
-            
             let alert = UIAlertController(title: "Edit Item", message: "", preferredStyle: .alert)
-            
             let editItemAction = UIAlertAction(title: "Edit", style: .default) { action in
                 item.done = false
                 item.name = textField.text!
                 item.timeStamp = Int32(Date().timeIntervalSince1970)
-                
                 tableView.reloadData()
             }
-            
             alert.addTextField { alertTextField in
                 alertTextField.text = item.name
                 textField = alertTextField
             }
-            
             alert.addAction(editItemAction)
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in }))
             
             self.present(alert, animated: true, completion: nil)
-            
             complete(true)
         }
         
@@ -232,23 +186,17 @@ class ItemsViewController: UITableViewController {
 //MARK: - SearchBar Methods
 
 extension ItemsViewController: UISearchBarDelegate {
-    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
         let request = Items.fetchRequest()
         let predicate = NSPredicate(format: K.Item.itemSearchBarPredicate, searchBar.text!)
-        
         request.sortDescriptors = [NSSortDescriptor(key: K.Item.itemAttributeTitle, ascending: true)]
         
-        frc = nil
-        loadItems(with: request, predicate: predicate)
+        setupItemsFRC(predicate: predicate, selectedList: selectedList)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0 {
-            
-            frc = nil
-            loadItems()
+            setupItemsFRC(selectedList: selectedList)
             
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
@@ -260,7 +208,6 @@ extension ItemsViewController: UISearchBarDelegate {
 //MARK: - FetchResultsController Delegates
 
 extension ItemsViewController: NSFetchedResultsControllerDelegate {
-    
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
