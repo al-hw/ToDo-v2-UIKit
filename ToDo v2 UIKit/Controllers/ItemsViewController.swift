@@ -14,7 +14,7 @@ class ItemsViewController: UITableViewController {
     let dateFormatter = DateFormatter()
     
     var selectedList : Lists? {
-        didSet{
+        didSet {
             setupItemsFRC(selectedList: selectedList)
         }
     }
@@ -26,9 +26,10 @@ class ItemsViewController: UITableViewController {
         navigationController?.navigationBar.tintColor = .label
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addItemTapped))
         
-        let searchBar = UISearchController(searchResultsController: nil)
-        searchBar.searchBar.delegate = self
-        navigationItem.searchController = searchBar
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchBar.autocapitalizationType = .none
+        searchController.searchBar.delegate = self
+        navigationItem.searchController = searchController
     }
     
     private func configureTableView() {
@@ -91,9 +92,7 @@ class ItemsViewController: UITableViewController {
     //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         frc.object(at: indexPath).done = !frc.object(at: indexPath).done
-        
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -124,7 +123,6 @@ class ItemsViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
-    
 
     //MARK: - Swipe Actions
     

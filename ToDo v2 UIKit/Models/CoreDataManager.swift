@@ -13,9 +13,9 @@ class CoreDataManager {
     
     let persistentContainer: NSPersistentContainer
     
-    private var context: NSManagedObjectContext {
+    private lazy var context: NSManagedObjectContext = {
         return persistentContainer.viewContext
-    }
+    }()
     
     init(modelName: String) {
         persistentContainer = NSPersistentContainer(name: modelName)
@@ -56,14 +56,20 @@ class CoreDataManager {
         request.sortDescriptors = [sortByDone, sortByTimeStamp]
         request.fetchBatchSize = 20
         
-        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedList!.name!)
+        
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 10
+        formatter.roundingMode = .floor
+        let selectedListTimeStampPredicate = formatter.string(from: NSNumber(value: selectedList!.timeStamp))
+        
+        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedListTimeStampPredicate!)
         
         if let additionalPredicate = predicate {
             request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [listPredicate, additionalPredicate])
         } else {
             request.predicate = listPredicate
         }
-        
+     
         return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
     }
 }

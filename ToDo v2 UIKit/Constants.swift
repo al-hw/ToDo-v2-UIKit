@@ -21,7 +21,7 @@ struct K {
         static let itemAttributeTitle = "name"
         static let itemAttributeTimeStamp = "timeStamp"
         static let itemAttributeDone = "done"
-        static let itemParentListPredicate = "parentList.name MATCHES %@"
+        static let itemParentListPredicate = "parentList.timeStamp == %@"
         static let itemSearchBarPredicate = "name CONTAINS[cd] %@"
     }
 }
