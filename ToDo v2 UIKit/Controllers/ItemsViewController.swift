@@ -37,7 +37,7 @@ class ItemsViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: K.Item.itemCellIdentifier)
     }
     
-    func setupItemsFRC(predicate: NSPredicate? = nil, selectedList: Lists? = nil) {
+    private func setupItemsFRC(predicate: NSPredicate? = nil, selectedList: Lists? = nil) {
         frc = CoreDataManager.sharedManager.loadItemsFRC(predicate: predicate, selectedList: selectedList)
         frc.delegate = self
         do {
@@ -54,7 +54,7 @@ class ItemsViewController: UITableViewController {
         configureNavBar()
         configureTableView()
         
-        dateFormatter.dateStyle = .long
+        dateFormatter.dateFormat = "dd.MM.yyyy"
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -111,6 +111,7 @@ class ItemsViewController: UITableViewController {
                 newItem.timeStamp = Int32(Date().timeIntervalSince1970)
                 newItem.parentList = self.selectedList
             }
+            self.tableView.reloadData()
         }
         
         alert.addTextField { alertTextField in
@@ -159,7 +160,7 @@ class ItemsViewController: UITableViewController {
                 item.done = false
                 item.name = textField.text!
                 item.timeStamp = Int32(Date().timeIntervalSince1970)
-                tableView.reloadData()
+      //          tableView.reloadData()
             }
             alert.addTextField { alertTextField in
                 alertTextField.text = item.name

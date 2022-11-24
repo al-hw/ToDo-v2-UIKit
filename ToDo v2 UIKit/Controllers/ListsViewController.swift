@@ -28,7 +28,7 @@ class ListsViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: K.List.listCellIdentifier)
     }
     
-    func setupListsFRC() {
+    private func setupListsFRC() {
         frc = CoreDataManager.sharedManager.loadListsFRC()
         frc.delegate = self
         
@@ -43,7 +43,7 @@ class ListsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dateFormatter.dateStyle = .long
+        dateFormatter.dateFormat = "dd.MM.yyyy"
         
         configureTableView()
         configureNavBar()
