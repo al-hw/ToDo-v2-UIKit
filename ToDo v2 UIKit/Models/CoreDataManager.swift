@@ -56,13 +56,14 @@ class CoreDataManager {
         request.sortDescriptors = [sortByDone, sortByTimeStamp]
         request.fetchBatchSize = 20
         
-        let formatter = NumberFormatter()
-        formatter.maximumFractionDigits = 10
-        formatter.roundingMode = .floor
-        
-        let selectedListTimeStampPredicate = formatter.string(from: NSNumber(value: selectedList!.timeStamp))
-        
-        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedListTimeStampPredicate!)
+//        let formatter = NumberFormatter()
+//        formatter.maximumFractionDigits = 10
+//        formatter.roundingMode = .floor
+//
+//        let selectedListTimeStampPredicate = formatter.string(from: NSNumber(value: selectedList!.timeStamp))
+//
+//        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedListTimeStampPredicate!)
+        let listPredicate = NSPredicate(format: K.Item.itemParentListPredicate, selectedList!.name!)
         
         if let additionalPredicate = predicate {
             request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [listPredicate, additionalPredicate])
